@@ -4,9 +4,20 @@
   "description": "Simple Google Chrome tab suspender",
   "author": "Dawoon Choi",
   "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "webpack --watch --hot --node-env development",
+    "build": "webpack --progress --node-env production"
+  },
   "devDependencies": {
+    "copy-webpack-plugin": "^8.0.0",
     "eslint": "^7.21.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1"
+    "eslint-plugin-import": "^2.22.1",
+    "webpack": "^5.26.3",
+    "webpack-cli": "^4.5.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

@@ -10,4 +10,7 @@ module.exports = {
   plugins: [
     'import',
   ],
+  ignorePatterns: [
+    'dist/*',
+  ],
 };
