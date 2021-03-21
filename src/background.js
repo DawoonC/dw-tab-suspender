@@ -3,7 +3,7 @@ import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 
 import {
-  storageLocalGetSingle,
+  storageSyncGetSingle,
   getTabActivityKey,
   storageLocalClear,
   storageLocalGet,
@@ -11,9 +11,7 @@ import {
   storageSyncSet,
 } from './storage';
 import { getTabActivity } from './utils';
-
-const color = '#3aa757';
-const defaultSuspendAfter = 30 * 60 * 1000; // 30 mins
+import { SUSPEND_AFTER_KEY, DEFAULT_SUSPEND_AFTER } from './consts';
 
 function getHashParams(url) {
   return url.split('#')[1]
@@ -33,16 +31,18 @@ async function suspend(tabInfo) {
   // return chrome.tabs.update(tabInfo.id, { url: suspendedUrl });
 }
 
-chrome.runtime.onInstalled.addListener(() => {
-  storageSyncSet({ color });
-  storageLocalClear().then(() => console.log('storage cleared!'));
-  storageLocalSet({ suspendAfter: defaultSuspendAfter });
+chrome.runtime.onInstalled.addListener(async () => {
+  await storageLocalClear();
+
+  const suspendAfter = (await storageSyncGetSingle(SUSPEND_AFTER_KEY)) || DEFAULT_SUSPEND_AFTER;
+
+  await storageSyncSet({ [SUSPEND_AFTER_KEY]: suspendAfter });
 });
 
 chrome.alarms.create({ periodInMinutes: 1.0 });
 
 chrome.alarms.onAlarm.addListener(async () => {
-  const suspendAfter = await storageLocalGetSingle('suspendAfter');
+  const suspendAfter = await storageSyncGetSingle(SUSPEND_AFTER_KEY);
   const inactiveTabs = await chrome.tabs.query({ active: false, url: ['http://*/*', 'https://*/*'] });
   const tabsById = keyBy(inactiveTabs, 'id');
   const keys = map(inactiveTabs, (tab) => getTabActivityKey(tab.id));

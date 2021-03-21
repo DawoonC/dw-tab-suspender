@@ -19,7 +19,6 @@ module.exports = {
         { from: './src/suspended.html' },
         { from: './images', to: 'images' },
 
-        { from: './src/button.css' },
         { from: './src/options.html' },
         { from: './src/popup.html' },
       ],
