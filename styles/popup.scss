@@ -1,0 +1,17 @@
+@use "@material/ripple";
+@use "@material/switch";
+@use "@material/list";
+
+@include switch.core-styles;
+@include list.core-styles;
+
+@import "~material-design-icons/iconfont/material-icons.css";
+
+.popup-container {
+  width: 300px;
+
+  .mdc-list {
+    padding: 0 !important;
+  }
+}
+

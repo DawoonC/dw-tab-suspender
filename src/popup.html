@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <div class="popup-container">
+      <ul class="mdc-list checkbox-list">
+        <li class="mdc-list-item" aria-checked="false">
+          <span class="mdc-list-item__ripple"></span>
+          <span class="mdc-list-item__text">
+            Don't suspend this tab
+          </span>
+
+          <div class="mdc-switch mdc-list-item__meta tab-suspender-switch-container">
+            <div class="mdc-switch__track"></div>
+            <div class="mdc-switch__thumb-underlay">
+              <div class="mdc-switch__thumb"></div>
+              <input
+                type="checkbox"
+                id="tab-suspender-switch"
+                class="mdc-switch__native-control"
+                role="switch"
+                aria-checked="false"
+              >
+            </div>
+          </div>
+        </li>
+      </ul>
+
+      <ul class="mdc-list link-list">
+        <li class="mdc-list-item" id="settings-link">
+          <span class="mdc-list-item__ripple"></span>
+          <span class="mdc-list-item__text">Settings</span>
+          <span class="mdc-list-item__meta material-icons" aria-hidden="true">open_in_new</span>
+        </li>
+      </ul>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
