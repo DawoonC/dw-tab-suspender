@@ -7,7 +7,8 @@
   "private": true,
   "scripts": {
     "dev": "webpack --watch --hot --node-env production",
-    "build": "webpack --progress --node-env production"
+    "build": "webpack --progress --node-env production",
+    "icons": "node ./scripts/icons.js"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^8.0.0",
@@ -19,6 +20,7 @@
     "file-loader": "^6.2.0",
     "sass": "^1.32.8",
     "sass-loader": "^11.0.1",
+    "sharp": "^0.27.2",
     "style-loader": "^2.0.0",
     "webpack": "^5.26.3",
     "webpack-cli": "^4.5.0"

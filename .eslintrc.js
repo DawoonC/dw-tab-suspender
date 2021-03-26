@@ -13,4 +13,12 @@ module.exports = {
   ignorePatterns: [
     'dist/*',
   ],
+  overrides: [
+    {
+      files: ['scripts/*.js'],
+      rules: {
+        'import/no-extraneous-dependencies': ['off'],
+      },
+    },
+  ],
 };
