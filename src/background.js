@@ -10,7 +10,11 @@ import {
   storageLocalSet,
   storageSyncSet,
 } from './storage';
-import { getTabActivity } from './utils';
+import {
+  createWhitelistRegExp,
+  getTabActivity,
+  getWhitelist,
+} from './utils';
 import { SUSPEND_AFTER_KEY, DEFAULT_SUSPEND_AFTER } from './consts';
 
 function getHashParams(url) {
@@ -43,18 +47,20 @@ chrome.alarms.create({ periodInMinutes: 1.0 });
 
 chrome.alarms.onAlarm.addListener(async () => {
   const suspendAfter = await storageSyncGetSingle(SUSPEND_AFTER_KEY);
-  const inactiveTabs = await chrome.tabs.query({ active: false, url: ['http://*/*', 'https://*/*'] });
+  const inactiveTabs = await chrome.tabs.query({
+    active: false,
+    audible: false,
+    url: ['http://*/*', 'https://*/*'],
+  });
   const tabsById = keyBy(inactiveTabs, 'id');
-  const keys = map(inactiveTabs, (tab) => getTabActivityKey(tab.id));
-  console.log('suspendAfter:', suspendAfter);
-  console.log('keys:', keys);
-
-  const tabActivities = await storageLocalGet(keys);
-  console.log('tabActivities:', tabActivities);
+  const activityKeys = map(inactiveTabs, (tab) => getTabActivityKey(tab.id));
+  const tabActivities = await storageLocalGet(activityKeys);
+  const whitelist = await getWhitelist();
+  const whitelistRegExp = createWhitelistRegExp(whitelist);
 
   const updateItems = inactiveTabs.reduce((acc, tab) => {
     const activity = (tabActivities[getTabActivityKey(tab.id)]
-      || { id: tab.id, lastActiveAt: null, isAlwaysOn: false });
+      || { id: tab.id, lastActiveAt: null });
 
     if (activity.lastActiveAt) {
       return acc;
@@ -63,20 +69,26 @@ chrome.alarms.onAlarm.addListener(async () => {
     activity.lastActiveAt = Date.now();
     return { ...acc, [getTabActivityKey(tab.id)]: activity };
   }, {});
-  console.log('updateItems:', updateItems);
 
   // update lastActiveAt in storage
   if (!isEmpty(updateItems)) {
     await storageLocalSet(updateItems);
   }
 
+  const updatedTabActivities = { ...tabActivities, ...updateItems };
+
   // suspend tabs
-  await Promise.all(map(updateItems, (item) => {
-    if (item.isAlwaysOn || (Date.now() - item.lastActiveAt) < suspendAfter) {
+  await Promise.all(map(inactiveTabs, (tab) => {
+    const activity = updatedTabActivities[getTabActivityKey(tab.id)];
+
+    if (
+      whitelistRegExp.test(tab.url)
+      || (Date.now() - activity.lastActiveAt) < suspendAfter
+    ) {
       return Promise.resolve();
     }
 
-    return suspend(tabsById[item.id]);
+    return suspend(tabsById[tab.id]);
   }));
 });
 

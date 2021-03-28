@@ -3,13 +3,19 @@ import { MDCRipple } from '@material/ripple';
 import { MDCList } from '@material/list';
 
 import '../styles/popup.scss';
-import { getTabActivityKey, storageLocalSet } from './storage';
-import { getTabActivity } from './utils';
+import {
+  removeFromWhitelist,
+  getDomainFromUrl,
+  addToWhitelist,
+  getWhitelist,
+} from './utils';
 
-const switchControl = new MDCSwitch(document.querySelector('.tab-suspender-switch-container'));
+const domainSwitchControl = new MDCSwitch(document.querySelector('.domain-suspend-switch-container'));
+const urlSwitchControl = new MDCSwitch(document.querySelector('.url-suspend-switch-container'));
 const checkboxList = new MDCList(document.querySelector('.checkbox-list'));
 const linkList = new MDCList(document.querySelector('.link-list'));
-const tabSuspendSwitch = document.getElementById('tab-suspender-switch');
+const domainSwitch = document.getElementById('domain-suspend-switch');
+const urlSwitch = document.getElementById('url-suspend-switch');
 const settingsLink = document.getElementById('settings-link');
 
 checkboxList.listElements.map((listItemEl) => new MDCRipple(listItemEl));
@@ -17,16 +23,26 @@ linkList.listElements.map((listItemEl) => new MDCRipple(listItemEl));
 
 chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
   const [tab] = tabs;
-  const key = getTabActivityKey(tab.id);
-  let activity = await getTabActivity(tab.id);
+  const domain = `${getDomainFromUrl(tab.url)}/*`;
+  const whitelist = await getWhitelist();
 
-  switchControl.checked = activity.isAlwaysOn;
+  domainSwitchControl.checked = whitelist.indexOf(domain) !== -1;
+  urlSwitchControl.checked = whitelist.indexOf(tab.url) !== -1;
 
-  tabSuspendSwitch.addEventListener('change', async (event) => {
-    activity = await getTabActivity(tab.id);
+  domainSwitch.addEventListener('change', async (event) => {
+    if (event.target.checked) {
+      await addToWhitelist(domain);
+    } else {
+      await removeFromWhitelist(domain);
+    }
+  });
 
-    activity.isAlwaysOn = event.target.checked;
-    await storageLocalSet({ [key]: activity });
+  urlSwitch.addEventListener('change', async (event) => {
+    if (event.target.checked) {
+      await addToWhitelist(tab.url);
+    } else {
+      await removeFromWhitelist(tab.url);
+    }
   });
 });
 
