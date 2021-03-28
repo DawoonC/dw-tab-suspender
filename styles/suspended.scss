@@ -1,0 +1,15 @@
+@use "@material/ripple";
+@use "@material/button/styles";
+@use "@material/typography/mdc-typography";
+
+.suspended-page {
+  text-align: center;
+  padding-top: 30vh;
+  padding-left: 16px;
+  padding-right: 16px;
+
+  .tab-info {
+    margin-bottom: 32px;
+    line-break: anywhere;
+  }
+}

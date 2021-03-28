@@ -2,9 +2,24 @@
 <html>
   <head>
     <title>Suspended Tab</title>
+    <meta content="initial-scale=1, width=device-width" name="viewport">
     <link rel="icon" href="">
   </head>
   <body>
-    <div>foo</div>
+    <div class="suspended-page">
+      <div class="tab-info">
+        <img id="tab-icon"></img>
+        <div id="tab-title" class="mdc-typography--headline6"></div>
+        <div id="tab-url" class="mdc-typography--body2"></div>
+      </div>
+
+      <div>
+        <button class="mdc-button mdc-button--raised" id="restore-btn">
+          <span class="mdc-button__ripple"></span>
+          <span class="mdc-button__label">Restore this tab</span>
+        </button>
+      </div>
+    </div>
+
     <script src="suspended.js"></script>
 </html>
