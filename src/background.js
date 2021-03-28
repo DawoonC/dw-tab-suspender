@@ -14,26 +14,9 @@ import {
   createWhitelistRegExp,
   getTabActivity,
   getWhitelist,
+  restore,
 } from './utils';
 import { SUSPEND_AFTER_KEY, DEFAULT_SUSPEND_AFTER } from './consts';
-
-function getHashParams(url) {
-  return url.split('#')[1]
-    .split('&')
-    .reduce((acc, curr) => {
-      const [key, val] = curr.split('=');
-      return { ...acc, [key]: decodeURIComponent(val) };
-    }, {});
-}
-
-async function suspend(tabInfo) {
-  const { title, favIconUrl, url } = tabInfo;
-  const params = `title=${title}&favIconUrl=${favIconUrl}&url=${url}`;
-  const suspendedUrl = `chrome-extension://${chrome.runtime.id}/suspended.html#${params}`;
-
-  return console.log(suspendedUrl, 'is now suspended!');
-  // return chrome.tabs.update(tabInfo.id, { url: suspendedUrl });
-}
 
 chrome.runtime.onInstalled.addListener(async () => {
   await storageLocalClear();
@@ -88,7 +71,8 @@ chrome.alarms.onAlarm.addListener(async () => {
       return Promise.resolve();
     }
 
-    return suspend(tabsById[tab.id]);
+    return console.log(tabsById[tab.id], 'tab is suspended');
+    // return suspend(tabsById[tab.id]);
   }));
 });
 
@@ -104,8 +88,6 @@ chrome.tabs.onActivated.addListener(async ({ tabId }) => {
   console.log('active tab URL:', tab.url);
 
   if (tab.url.startsWith(suspendedPageUrl)) {
-    const { url } = getHashParams(tab.url);
-    console.log(url, 'is now active!');
-    // await chrome.tabs.update(tab.id, { url });
+    await restore(tab);
   }
 });

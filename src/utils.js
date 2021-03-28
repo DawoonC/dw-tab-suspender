@@ -65,3 +65,27 @@ export function createElementFromHTML(html) {
 
   return template.content.firstChild;
 }
+
+export function getHashParams(url) {
+  return url.split('#')[1]
+    .split('&')
+    .reduce((acc, curr) => {
+      const [key, val] = curr.split('=');
+      return { ...acc, [key]: decodeURIComponent(val) };
+    }, {});
+}
+
+export async function suspend(tabInfo) {
+  const { title, favIconUrl, url } = tabInfo;
+  const params = `title=${title}&favIconUrl=${favIconUrl}&url=${url}`;
+  const suspendedUrl = `chrome-extension://${chrome.runtime.id}/suspended.html#${params}`;
+
+  console.log(suspendedUrl, 'is now suspended!');
+  return chrome.tabs.update(tabInfo.id, { url: suspendedUrl });
+}
+
+export async function restore(tabInfo) {
+  const { url } = getHashParams(tabInfo.url);
+  console.log(url, 'is now active!');
+  await chrome.tabs.update(tabInfo.id, { url });
+}

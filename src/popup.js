@@ -8,6 +8,7 @@ import {
   getDomainFromUrl,
   addToWhitelist,
   getWhitelist,
+  suspend,
 } from './utils';
 
 const domainSwitchControl = new MDCSwitch(document.querySelector('.domain-suspend-switch-container'));
@@ -16,6 +17,7 @@ const checkboxList = new MDCList(document.querySelector('.checkbox-list'));
 const linkList = new MDCList(document.querySelector('.link-list'));
 const domainSwitch = document.getElementById('domain-suspend-switch');
 const urlSwitch = document.getElementById('url-suspend-switch');
+const suspendNowLink = document.getElementById('suspend-now-link');
 const settingsLink = document.getElementById('settings-link');
 
 checkboxList.listElements.map((listItemEl) => new MDCRipple(listItemEl));
@@ -44,6 +46,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       await removeFromWhitelist(tab.url);
     }
   });
+});
+
+suspendNowLink.addEventListener('click', async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  await suspend(tab);
 });
 
 settingsLink.addEventListener('click', () => {
