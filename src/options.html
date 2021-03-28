@@ -16,7 +16,7 @@
 
     <main class="mdc-top-app-bar--fixed-adjust options-container mdc-elevation--z3">
       <div class="options__item">
-        <p class="mdc-typography--headline5">Suspend After: <span id="suspend-after-label-value"></span> minutes</p>
+        <p class="mdc-typography--headline6">Automatically suspend tabs after: <span id="suspend-after-label-value"></span> minutes</p>
 
         <div class="mdc-slider mdc-slider--discrete suspend-after-selector">
           <input
@@ -47,6 +47,12 @@
             <div class="mdc-slider__thumb-knob"></div>
           </div>
         </div>
+      </div>
+
+      <div class="options__item">
+        <p class="mdc-typography--headline6">Whitelist:</p>
+
+        <ul class="mdc-list" id="whitelist-list"></ul>
       </div>
     </main>
   </body>

@@ -7,6 +7,7 @@ import {
   getTabActivityKey,
   storageSyncSet,
 } from './storage';
+import { WHITELIST_KEY } from './consts';
 
 export async function getTabActivity(tabId) {
   const key = getTabActivityKey(tabId);
@@ -16,14 +17,14 @@ export async function getTabActivity(tabId) {
 }
 
 export async function getWhitelist() {
-  return (await storageSyncGetSingle('whitelist')) || [];
+  return (await storageSyncGetSingle(WHITELIST_KEY)) || [];
 }
 
 export async function addToWhitelist(url) {
   const whitelist = await getWhitelist();
 
   await storageSyncSet({
-    whitelist: uniq([...whitelist, url]),
+    [WHITELIST_KEY]: uniq([...whitelist, url]),
   });
 }
 
@@ -31,7 +32,7 @@ export async function removeFromWhitelist(url) {
   const whitelist = await getWhitelist();
 
   await storageSyncSet({
-    whitelist: filter(whitelist, (item) => item !== url),
+    [WHITELIST_KEY]: filter(whitelist, (item) => item !== url),
   });
 }
 
@@ -56,4 +57,11 @@ export function getDomainFromUrl(url) {
   a.setAttribute('href', url);
 
   return a.origin;
+}
+
+export function createElementFromHTML(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html.trim();
+
+  return template.content.firstChild;
 }
