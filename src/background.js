@@ -15,6 +15,7 @@ import {
   getTabActivity,
   getWhitelist,
   restore,
+  suspend,
 } from './utils';
 import { SUSPEND_AFTER_KEY, DEFAULT_SUSPEND_AFTER } from './consts';
 
@@ -71,8 +72,7 @@ chrome.alarms.onAlarm.addListener(async () => {
       return Promise.resolve();
     }
 
-    return console.log(tabsById[tab.id], 'tab is suspended');
-    // return suspend(tabsById[tab.id]);
+    return suspend(tabsById[tab.id]);
   }));
 });
 
@@ -84,8 +84,6 @@ chrome.tabs.onActivated.addListener(async ({ tabId }) => {
 
   activity.lastActiveAt = null;
   await storageLocalSet({ [key]: activity });
-
-  console.log('active tab URL:', tab.url);
 
   if (tab.url.startsWith(suspendedPageUrl)) {
     await restore(tab);
