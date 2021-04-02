@@ -77,7 +77,7 @@ export function getHashParams(url) {
 
 export async function suspend(tabInfo) {
   const { title, favIconUrl, url } = tabInfo;
-  const params = `title=${title}&favIconUrl=${favIconUrl}&url=${url}`;
+  const params = `title=${encodeURIComponent(title)}&favIconUrl=${encodeURIComponent(favIconUrl)}&url=${encodeURIComponent(url)}`;
   const suspendedUrl = `chrome-extension://${chrome.runtime.id}/suspended.html#${params}`;
 
   console.log(suspendedUrl, 'is now suspended!');
