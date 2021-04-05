@@ -1,7 +1,7 @@
 import { MDCRipple } from '@material/ripple';
 
 import '../styles/suspended.scss';
-import { restore } from './utils';
+import { restore, getHashParams } from './utils';
 
 const restoreBtn = document.getElementById('restore-btn');
 const tabIcon = document.getElementById('tab-icon');
@@ -11,13 +11,7 @@ const tabUrl = document.getElementById('tab-url');
 new MDCRipple(restoreBtn);
 
 function setTabTitleAndIcon() {
-  const params = window.location.hash
-    .slice(1)
-    .split('&')
-    .reduce((acc, curr) => {
-      const [key, val] = curr.split('=');
-      return { ...acc, [key]: decodeURIComponent(val) };
-    }, {});
+  const params = getHashParams(window.location.hash);
 
   document.querySelector('link[rel="icon"]').href = params.favIconUrl;
   document.title = params.title;
