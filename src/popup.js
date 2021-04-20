@@ -27,9 +27,37 @@ const urlSwitch = document.getElementById('url-suspend-switch');
 const suspendNowLink = document.getElementById('suspend-now-link');
 const settingsLink = document.getElementById('settings-link');
 const restoreAllLink = document.getElementById('restore-all-link');
+const restoreCurrentWindowLink = document.getElementById('restore-current-window-link');
 
 checkboxList.listElements.map((listItemEl) => new MDCRipple(listItemEl));
 linkList.listElements.map((listItemEl) => new MDCRipple(listItemEl));
+
+async function restoreTabs(currentWindow) {
+  const tabQueryOptions = {
+    active: false,
+    url: [`chrome-extension://${chrome.runtime.id}/suspended.html*`],
+  };
+
+  if (currentWindow) {
+    tabQueryOptions.currentWindow = true;
+  }
+
+  const suspendedTabs = await chrome.tabs.query(tabQueryOptions);
+
+  // eslint-disable-next-line no-alert
+  if (!window.confirm(`Restore ${suspendedTabs.length} tabs now?`)) {
+    return;
+  }
+
+  await Promise.all(map(suspendedTabs, async (tab) => {
+    const key = getTabActivityKey(tab.id);
+    const activity = await getTabActivity(tab.id);
+
+    activity.lastActiveAt = null;
+    await storageLocalSet({ [key]: activity });
+    await restore(tab);
+  }));
+}
 
 chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
   const [tab] = tabs;
@@ -61,26 +89,9 @@ suspendNowLink.addEventListener('click', async () => {
   await suspend(tab);
 });
 
-restoreAllLink.addEventListener('click', async () => {
-  const suspendedTabs = await chrome.tabs.query({
-    active: false,
-    url: [`chrome-extension://${chrome.runtime.id}/suspended.html*`],
-  });
+restoreAllLink.addEventListener('click', () => restoreTabs());
 
-  // eslint-disable-next-line no-alert
-  if (!window.confirm(`Restore ${suspendedTabs.length} tabs now?`)) {
-    return;
-  }
-
-  await Promise.all(map(suspendedTabs, async (tab) => {
-    const key = getTabActivityKey(tab.id);
-    const activity = await getTabActivity(tab.id);
-
-    activity.lastActiveAt = null;
-    await storageLocalSet({ [key]: activity });
-    await restore(tab);
-  }));
-});
+restoreCurrentWindowLink.addEventListener('click', () => restoreTabs(true));
 
 settingsLink.addEventListener('click', () => {
   if (chrome.runtime.openOptionsPage) {
